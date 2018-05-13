@@ -8,6 +8,7 @@ function yaamp_get_algos()
 		'sha256t',
 		'scrypt',
 		'scryptn',
+		'allium',
 		'argon2',
 		'bastion',
 		'bitcore',
@@ -40,6 +41,7 @@ function yaamp_get_algos()
 		'x14',
 		'x15',
 		'x16r',
+		'x16s',
 		'x17',
 		'xevan',
 		'groestl', // dmd-gr -m 256 (deprecated)
@@ -57,6 +59,7 @@ function yaamp_get_algos()
 		'vanilla',
 		'veltor',
 		'velvet',
+		'vitalium',
 		'yescrypt',
 		'yescryptR16',
 		'yescryptR32',
@@ -143,8 +146,10 @@ function getAlgoColors($algo)
 		'x14'		=> '#f0c080',
 		'x15'		=> '#f0b080',
 		'x16r'		=> '#f0b080',
+		'x16s'		=> '#f0b080',
 		'x17'		=> '#f0b0a0',
 		'xevan'         => '#f0b0a0',
+		'allium'	=> '#80a0d0',
 		'argon2'	=> '#e0d0e0',
 		'bastion'	=> '#e0b0b0',
 		'blake'		=> '#f0f0f0',
@@ -176,9 +181,10 @@ function getAlgoColors($algo)
 		'bitcore'	=> '#f790c0',
 		'skunk'		=> '#dedefe',
 		'tribus'	=> '#c0d0d0',
-	        'a5a'		=> '#f0f0f0',
+		'a5a'		=> '#f0f0f0',
 		'vanilla'	=> '#f0f0f0',
 		'velvet'	=> '#aac0cc',
+		'vitalium'	=> '#f0b0a0',
 		'whirlpool'	=> '#d0e0e0',
 		'yescrypt'	=> '#e0d0e0',
 		'yescryptR16'	=> '#e2d0e2',
@@ -212,6 +218,7 @@ function getAlgoPort($algo)
 		'x13'		=> 3633,
 		'x15'		=> 3733,
 		'x16r'		=> 3636,
+		'x16s'		=> 3663,
 		'x17'		=> 3737,
 		'xevan'		=> 3739,
 		'hmq1725'	=> 3747,
@@ -222,6 +229,7 @@ function getAlgoPort($algo)
 		'neoscrypt'	=> 4233,
 		'argon2'	=> 4234,
 		'scryptn'	=> 4333,
+		'allium'	=> 4443,
 		'lyra2'		=> 4433,
 		'lyra2v2'	=> 4533,
 		'lyra2z'	=> 4553,
@@ -248,6 +256,7 @@ function getAlgoPort($algo)
 		'm7m'		=> 6033,
 		'veltor'	=> 5034,
 		'velvet'	=> 6133,
+		'vitalium'	=> 3233,
 		'yescrypt'	=> 6233,
 		'yescryptR16'	=> 6333,
 		'yescryptR32'	=> 6343,
@@ -275,7 +284,7 @@ function getAlgoPort($algo)
 function yaamp_fee($algo)
 {
 	$fee = controller()->memcache->get("yaamp_fee-$algo");
-	if($fee) return $fee;
+	if($fee && is_numeric($fee)) return (float) $fee;
 
 /*	$norm = yaamp_get_algo_norm($algo);
 	if($norm == 0) $norm = 1;

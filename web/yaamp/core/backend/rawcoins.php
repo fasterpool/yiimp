@@ -22,21 +22,31 @@ function updateRawcoins()
 
 	if (!exchange_get('bittrex', 'disabled')) {
 		$list = bittrex_api_query('public/getcurrencies');
-		if(isset($list->result))
+		if(isset($list->result) && !empty($list->result))
 		{
 			dborun("UPDATE markets SET deleted=true WHERE name='bittrex'");
-			foreach($list->result as $currency)
+			foreach($list->result as $currency) {
+				if ($currency->Currency == 'BTC') {
+					exchange_set('bittrex', 'withdraw_fee_btc', $currency->TxFee);
+					continue;
+				}
 				updateRawCoin('bittrex', $currency->Currency, $currency->CurrencyLong);
+			}
 		}
 	}
 
 	if (!exchange_get('bleutrade', 'disabled')) {
 		$list = bleutrade_api_query('public/getcurrencies');
-		if(isset($list->result))
+		if(isset($list->result) && !empty($list->result))
 		{
 			dborun("UPDATE markets SET deleted=true WHERE name='bleutrade'");
-			foreach($list->result as $currency)
+			foreach($list->result as $currency) {
+				if ($currency->Currency == 'BTC') {
+					exchange_set('bleutrade', 'withdraw_fee_btc', $currency->TxFee);
+					continue;
+				}
 				updateRawCoin('bleutrade', $currency->Currency, $currency->CurrencyLong);
+			}
 		}
 	}
 
@@ -372,7 +382,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 	if($symbol == 'BTC') return;
 
 	$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-	if(!$coin && $marketname != 'yobit')
+	if(!$coin && YAAMP_CREATE_NEW_COINS)
 	{
 		$algo = '';
 		if ($marketname == 'cryptopia') {
@@ -394,6 +404,10 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			// don't polute too much the db with new coins, its better from exchanges with labels
 			return;
 		}
+
+		// some other to ignore...
+		if (in_array($marketname, array('yobit','kucoin','tradesatoshi')))
+			return;
 
 		if (market_get($marketname, $symbol, "disabled")) {
 			return;
